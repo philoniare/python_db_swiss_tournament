@@ -79,15 +79,12 @@ def playerStandings():
     conn, c = getConnCursor()
     # Fecching players sorted by their standing in tournament
     c.execute("SELECT players.id, players.name, "
-    "SUM(CASE WHEN matches.winner=players.id THEN 1 else 0 END) AS wins"
-    ", SUM(CASE WHEN matches.loser=players.id THEN 1 else 0 END) AS losses"
-    " FROM players LEFT JOIN matches ON players.id=matches.winner OR "
-    "players.id=matches.loser GROUP BY players.id;")
+    "sum(CASE WHEN matches.winner=players.id THEN 1 else 0 END) as wins,"
+    " sum(CASE WHEN matches.loser=players.id or matches.winner=players.id "
+    "THEN 1 else 0 END) as matches FROM players left join matches on "
+    "players.id=matches.winner or players.id=matches.loser group by players.id;")
     players = c.fetchall()
-    sorted(players, key=lambda x: x[2])
-    print(players)
-    
-    
+    players = sorted(players, key=lambda x: x[2])
     conn.close()
     return players
     
@@ -121,4 +118,11 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+    player_stadings = playerStandings()
+    pairings = []
+    for i in range(0, len(player_stadings), 2):
+        pairings.append((player_stadings[i][0], player_stadings[i][1], 
+            player_stadings[i+1][0], player_stadings[i+1][1]))
+    return pairings
+    
     
