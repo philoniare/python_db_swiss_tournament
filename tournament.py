@@ -4,24 +4,44 @@
 #
 
 import psycopg2
-
+import bleach
 
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
     return psycopg2.connect("dbname=tournament")
 
+def getConnCursor():
+    """Connects to db and returns connection and cursor."""
+    conn = connect()
+    c = conn.cursor()
+    return conn, c
 
+def clearTable(table_name):
+    """Deletes all entries inside a given table."""
+    conn, c = getConnCursor()
+    c.execute("DELETE FROM " + table_name + " *;")
+    conn.commit()
+    conn.close()
+    
 def deleteMatches():
     """Remove all the match records from the database."""
-
+    clearTable('matches')
+    
 
 def deletePlayers():
     """Remove all the player records from the database."""
-
+    clearTable('players')
+    
 
 def countPlayers():
     """Returns the number of players currently registered."""
-
+    conn, c = getConnCursor()
+    c.execute("SELECT COUNT(*) FROM players;")
+    
+    # save player count from cursor
+    count_players = c.fetchall()[0][0]
+    conn.close()
+    return count_players
 
 def registerPlayer(name):
     """Adds a player to the tournament database.
@@ -32,6 +52,15 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
+    conn, c = getConnCursor()
+    # sanitize input
+    name = bleach.clean(name)
+    
+    # Add the player providing the name
+    c.execute("INSERT INTO players (name) VALUES (%s);", (name,))
+    conn.commit()
+    conn.close()
+    
 
 
 def playerStandings():
@@ -47,7 +76,21 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
-
+    conn, c = getConnCursor()
+    # Fecching players sorted by their standing in tournament
+    c.execute("SELECT players.id, players.name, "
+    "SUM(CASE WHEN matches.winner=players.id THEN 1 else 0 END) AS wins"
+    ", SUM(CASE WHEN matches.loser=players.id THEN 1 else 0 END) AS losses"
+    " FROM players LEFT JOIN matches ON players.id=matches.winner OR "
+    "players.id=matches.loser GROUP BY players.id;")
+    players = c.fetchall()
+    sorted(players, key=lambda x: x[2])
+    print(players)
+    
+    
+    conn.close()
+    return players
+    
 
 def reportMatch(winner, loser):
     """Records the outcome of a single match between two players.
@@ -56,7 +99,12 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
- 
+    conn, c = getConnCursor()
+    
+    # Create a match record with given ids
+    c.execute("INSERT INTO matches (winner, loser) VALUES (%s, %s);", (winner, loser))
+    conn.commit()
+    conn.close()
  
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
@@ -73,5 +121,4 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
-
-
+    
