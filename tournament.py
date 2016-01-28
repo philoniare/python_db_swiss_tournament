@@ -45,9 +45,8 @@ def countPlayers():
 def registerPlayer(name):
     """Adds a player to the tournament database.
   
-    The database assigns a unique serial id number for the player.  (This
-    should be handled by your SQL database schema, not in your Python code.)
-  
+    The database assigns a unique serial id number for the player.  (
+    
     Args:
       name: the player's full name (need not be unique).
     """
@@ -58,14 +57,29 @@ def registerPlayer(name):
     conn.commit()
     conn.close()
     
+def createTournament(name)
+    """Adds a tournament to the tournaments table to keep track of multiple tournaments.
+        
+        Args:
+            name: the tournament name (need to be unique).
+    """
+    conn, c = getConnCursor()
+    
+    c.execute("INSERT INTO tournaments (name) VALUES (%s) RETURNING id;", (name,))
+    tournament_id = c.fetchone()[0]
+    conn.commit()
+    conn.close()
+    return tournament_id
 
-
-def playerStandings():
+def playerStandings(tournament_id):
     """Returns a list of the players and their win records, sorted by wins.
 
     The first entry in the list should be the player in first place, or a player
     tied for first place if there is currently a tie.
 
+    Args:
+        tournament_id:  the id number of the tournament
+        
     Returns:
       A list of tuples, each of which contains (id, name, wins, matches):
         id: the player's unique id (assigned by the database)
@@ -83,23 +97,27 @@ def playerStandings():
     return players
     
 
-def reportMatch(winner, loser):
+def reportMatch(winner, loser, tournament_id):
     """Records the outcome of a single match between two players.
 
     Args:
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
+      tournament_id:  the id number of the tournament
     """
     conn, c = getConnCursor()
     
     # Create a match record with given ids
-    c.execute("INSERT INTO matches (winner, loser) VALUES (%s, %s);", (winner, loser))
+    c.execute("INSERT INTO matches (winner, loser, tournament_id) VALUES (%s, %s, %s);", (winner, loser, tournament_id))
     conn.commit()
     conn.close()
  
-def swissPairings():
+def swissPairings(tournament_id):
     """Returns a list of pairs of players for the next round of a match.
-  
+    
+    Args:
+        tournament_id:  the id number of the tournament
+    
     Assuming that there are an even and odd number of players registered, each player
     appears exactly once in the pairings. If odd number of players, last player skips the round.
     Each player is paired with another player with an equal or nearly-equal win 
@@ -113,7 +131,7 @@ def swissPairings():
         name2: the second player's name
     """
     # Fetch current_standings of players
-    player_standings = playerStandings()
+    player_standings = playerStandings(tournament_id)
     
     # handle odd number of players
     if len(player_standings) % 2 == 1:

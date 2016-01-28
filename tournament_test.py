@@ -81,8 +81,9 @@ def testReportMatches():
     registerPlayer("Diane Grant")
     standings = playerStandings()
     [id1, id2, id3, id4] = [row[0] for row in standings]
-    reportMatch(id1, id2)
-    reportMatch(id3, id4)
+    tournament_id = createTournament("Survival Game")  
+    reportMatch(id1, id2, tournament_id)
+    reportMatch(id3, id4, tournament_id)
     standings = playerStandings()
     for (i, n, w, m) in standings:
         if m != 1:
@@ -123,10 +124,11 @@ def testPairings():
     if len(pairings) != 4:
         raise ValueError(
             "For eight players, swissPairings should return 4 pairs. Got {pairs}".format(pairs=len(pairings)))
-    reportMatch(id1, id2)
-    reportMatch(id3, id4)
-    reportMatch(id5, id6)
-    reportMatch(id7, id8)
+    tournament_id = createTournament("The Path to Nirvana")
+    reportMatch(id1, id2, tournament_id)
+    reportMatch(id3, id4, tournament_id)
+    reportMatch(id5, id6, tournament_id)
+    reportMatch(id7, id8, tournament_id)
     pairings = swissPairings()
     if len(pairings) != 4:
         raise ValueError(
