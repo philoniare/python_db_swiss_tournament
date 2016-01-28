@@ -100,10 +100,10 @@ def reportMatch(winner, loser):
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
   
-    Assuming that there are an even number of players registered, each player
-    appears exactly once in the pairings.  Each player is paired with another
-    player with an equal or nearly-equal win record, that is, a player adjacent
-    to him or her in the standings.
+    Assuming that there are an even and odd number of players registered, each player
+    appears exactly once in the pairings. If odd number of players, last player skips the round.
+    Each player is paired with another player with an equal or nearly-equal win 
+    record, that is, a player adjacent to him or her in the standings.
   
     Returns:
       A list of tuples, each of which contains (id1, name1, id2, name2)
@@ -113,12 +113,16 @@ def swissPairings():
         name2: the second player's name
     """
     # Fetch current_standings of players
-    player_stadings = playerStandings()
+    player_standings = playerStandings()
+    
+    # handle odd number of players
+    if len(player_standings) % 2 == 1:
+        skipped_round_player = player_standings.pop()  # skipped round for last player
     
     pairings = []
-    for i in range(0, len(player_stadings), 2):
-        pairings.append((player_stadings[i][0], player_stadings[i][1], 
-            player_stadings[i+1][0], player_stadings[i+1][1]))
+    for i in range(0, len(player_standings), 2):
+        pairings.append((player_standings[i][0], player_standings[i][1], 
+            player_standings[i+1][0], player_standings[i+1][1]))
     return pairings
     
     
