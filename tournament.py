@@ -57,7 +57,7 @@ def registerPlayer(name):
     conn.commit()
     conn.close()
     
-def createTournament(name)
+def createTournament(name):
     """Adds a tournament to the tournaments table to keep track of multiple tournaments.
         
         Args:
@@ -88,8 +88,9 @@ def playerStandings(tournament_id):
         matches: the number of matches the player has played
     """
     conn, c = getConnCursor()
+    
     # Fetching players with sum of wins and total match count ordered by number of wins
-    c.execute("SELECT * FROM standings;")
+    c.execute("SELECT id, name, wins, matches FROM standings;", (tournament_id,))
     players = c.fetchall()
     
     # Sort by number of wins
@@ -108,7 +109,7 @@ def reportMatch(winner, loser, tournament_id):
     conn, c = getConnCursor()
     
     # Create a match record with given ids
-    c.execute("INSERT INTO matches (winner, loser, tournament_id) VALUES (%s, %s, %s);", (winner, loser, tournament_id))
+    c.execute("INSERT INTO matches (winner, loser, tournament) VALUES (%s, %s, %s);", (winner, loser, tournament_id))
     conn.commit()
     conn.close()
  

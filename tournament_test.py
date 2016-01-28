@@ -51,7 +51,9 @@ def testStandingsBeforeMatches():
     deletePlayers()
     registerPlayer("Melpomene Murray")
     registerPlayer("Randy Schwartz")
-    standings = playerStandings()
+    tournament_id = createTournament("Underwater Chess")
+    standings = playerStandings(tournament_id)
+    print(standings)
     if len(standings) < 2:
         raise ValueError("Players should appear in playerStandings even before "
                          "they have played any matches.")
@@ -79,12 +81,13 @@ def testReportMatches():
     registerPlayer("Boots O'Neal")
     registerPlayer("Cathy Burton")
     registerPlayer("Diane Grant")
-    standings = playerStandings()
+    tournament_id = createTournament("Blindfolded Programming Tournament")
+    standings = playerStandings(tournament_id)
     [id1, id2, id3, id4] = [row[0] for row in standings]
     tournament_id = createTournament("Survival Game")  
     reportMatch(id1, id2, tournament_id)
     reportMatch(id3, id4, tournament_id)
-    standings = playerStandings()
+    standings = playerStandings(tournament_id)
     for (i, n, w, m) in standings:
         if m != 1:
             raise ValueError("Each player should have one match recorded.")
@@ -94,7 +97,7 @@ def testReportMatches():
             raise ValueError("Each match loser should have zero wins recorded.")
     print "7. After a match, players have updated standings."
     deleteMatches()
-    standings = playerStandings()
+    standings = playerStandings(tournament_id)
     if len(standings) != 4:
         raise ValueError("Match deletion should not change number of players in standings.")
     for (i, n, w, m) in standings:
@@ -118,9 +121,10 @@ def testPairings():
     registerPlayer("Rainbow Dash")
     registerPlayer("Princess Celestia")
     registerPlayer("Princess Luna")
-    standings = playerStandings()
+    tournament_id = createTournament("Zombie Eating Contest")
+    standings = playerStandings(tournament_id)
     [id1, id2, id3, id4, id5, id6, id7, id8] = [row[0] for row in standings]
-    pairings = swissPairings()
+    pairings = swissPairings(tournament_id)
     if len(pairings) != 4:
         raise ValueError(
             "For eight players, swissPairings should return 4 pairs. Got {pairs}".format(pairs=len(pairings)))
@@ -129,7 +133,7 @@ def testPairings():
     reportMatch(id3, id4, tournament_id)
     reportMatch(id5, id6, tournament_id)
     reportMatch(id7, id8, tournament_id)
-    pairings = swissPairings()
+    pairings = swissPairings(tournament_id)
     if len(pairings) != 4:
         raise ValueError(
             "For eight players, swissPairings should return 4 pairs. Got {pairs}".format(pairs=len(pairings)))
