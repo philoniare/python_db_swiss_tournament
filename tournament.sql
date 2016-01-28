@@ -8,17 +8,52 @@ CREATE DATABASE tournament;
 \c tournament;
 
 
+/* Players table
+    +---------+-------------+
+    |   Id    |    name     |
+    +---------+-------------+
+    | Serial  | varchar(50) |
+    | Primary | NOT NULL    |
+    +---------+-------------+
+*/
+
 -- create initial Tables
 CREATE TABLE players (
     id serial PRIMARY KEY,
     name varchar(50) NOT NULL
 );
 
+/* Matches TABLE
+    +---------+-----------------+-----------------+
+    |   Id    |     winner      |      loser      |
+    +---------+-----------------+-----------------+
+    | Serial  | int             | int             |
+    | Primary | ref players(id) | ref players(id) |
+    +---------+-----------------+-----------------+
+*/
+
 CREATE TABLE matches (
     id serial PRIMARY KEY,
     winner int references players(id),
     loser int references players(id)
 );
+
+
+/* Tournaments table
+    +---------+-------------+
+    |   Id    |    name     |
+    +---------+-------------+
+    | Serial  | varchar(50) |
+    | Primary | NOT NULL    |
+    +---------+-------------+
+*/
+
+
+CREATE TABLE tournaments (
+    id serial PRIMARY KEY,
+    name varchar(50) NOT NULL
+);
+
 
 -- needed for granting permission to the user, possibly optional
 --GRANT ALL PRIVILEGES ON TABLE players TO philoniare;
